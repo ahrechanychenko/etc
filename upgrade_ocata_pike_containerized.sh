@@ -17,7 +17,7 @@ function deploy_overcloud
     -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
     -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml \
     -e /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml \
-    -e /home/stack/network-environment.yaml \
+    -e /home/stack/network-environment.yaml 
     sleep 3
     printf "\n"
 }
