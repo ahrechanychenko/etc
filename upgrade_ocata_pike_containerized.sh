@@ -1,5 +1,27 @@
 #!/bin/bash
 
+function deploy_overcloud
+{
+    echo -e "\x1B[01;96m Deploy overcloud \n / \x1B[0m"
+    echo -e "\x1B[01;96m ------------------------------------------------------------------ \x1B[0m"
+    cd /home/stack/ && source stackrc
+    export THT=/usr/share/openstack-tripleo-heat-templates
+    openstack overcloud deploy \
+    --libvirt-type qemu \
+    --ntp-server clock.redhat.com \
+    --control-scale 1 \
+    --control-flavor oooq_control \
+    --compute-flavor oooq_compute \
+    --templates $THT \
+    -e $THT/environments/low-memory-usage.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml \
+    -e /home/stack/network-environment.yaml \
+    sleep 3
+    printf "\n"
+}
+
 function download_docker_images_to_local_registry
 {
     echo -e "\x1B[01;96m Create and download latest openstack images to local registry\n / \x1B[0m"
@@ -49,6 +71,7 @@ function perform_preparing_steps
     sleep 3
     printf "\n"
 }
+
 function upgrade_overcloud
 {
     echo -e "\x1B[01;96m Upgrade overcloud \n / \x1B[0m"
@@ -59,8 +82,14 @@ function upgrade_overcloud
     --libvirt-type qemu \
     --ntp-server clock.redhat.com \
     --control-scale 1 \
+    --control-flavor oooq_control \
+    --compute-flavor oooq_compute \
     --templates $THT \
     -e $THT/environments/low-memory-usage.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml \
+    -e /home/stack/network-environment.yaml \
     -e $THT/environments/docker.yaml \
     -e $THT/environments/major-upgrade-composable-steps-docker.yaml \
     -e ~/containers-default-parameters.yaml
@@ -71,7 +100,7 @@ function upgrade_overcloud
 
 function main
 {
-    upgrade_undercloud_node
+    deploy_overcloud
     perform_preparing_steps
     download_docker_images_to_local_registry
     upgrade_overcloud
