@@ -101,6 +101,7 @@ function upgrade_overcloud
 function main
 {
     deploy_overcloud
+    upgrade_undercloud_node
     perform_preparing_steps
     download_docker_images_to_local_registry
     upgrade_overcloud
