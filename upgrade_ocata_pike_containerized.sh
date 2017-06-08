@@ -70,6 +70,38 @@ function perform_preparing_steps
     '
     sleep 3
     printf "\n"
+    
+    cat > ~/containers-upgrade-repos.yaml <<EOEF
+parameter_defaults:
+  UpgradeInitCommand: |
+    set -e
+    pushd /etc/yum.repos.d/
+    rm -rf delorean*
+    REPO_PREFIX=/etc/yum.repos.d
+    DELOREAN_REPO_URL=https://trunk.rdoproject.org/centos7/current-tripleo
+    DELOREAN_REPO_FILE=delorean.repo
+
+    sudo curl -Lvo $REPO_PREFIX/delorean-deps.repo https://trunk.rdoproject.org/centos7/delorean-deps.repo
+    sudo sed -i -e 's%priority=.*%priority=30%' $REPO_PREFIX/delorean-deps.repo
+    cat $REPO_PREFIX/delorean-deps.repo
+
+    # Enable last known good RDO Trunk Delorean repository
+    sudo curl -Lvo $REPO_PREFIX/delorean.repo $DELOREAN_REPO_URL/$DELOREAN_REPO_FILE
+    sudo sed -i -e 's%priority=.*%priority=20%' $REPO_PREFIX/delorean.repo
+    cat $REPO_PREFIX/delorean.repo
+
+    # Enable latest RDO Trunk Delorean repository
+    sudo curl -Lvo $REPO_PREFIX/delorean-current.repo https://trunk.rdoproject.org/centos7/current/delorean.repo
+    sudo sed -i -e 's%priority=.*%priority=10%' $REPO_PREFIX/delorean-current.repo
+    sudo sed -i 's/\[delorean\]/\[delorean-current\]/' $REPO_PREFIX/delorean-current.repo
+    sudo /bin/bash -c "cat <<-EOF>>$REPO_PREFIX/delorean-current.repo
+
+    includepkgs=diskimage-builder,instack,instack-undercloud,os-apply-config,os-collect-config,os-net-config,os-refresh-config,python-tripleoclient,openstack-tripleo-common*,openstack-tripleo-heat-templates,openstack-tripleo-image-elements,openstack-tripleo,openstack-tripleo-puppet-elements,openstack-puppet-modules,openstack-tripleo-ui,puppet-*
+    EOF"
+    cat $REPO_PREFIX/delorean-current.repo
+    popd
+    yum clean all
+EOEF
 }
 
 function upgrade_overcloud
@@ -92,7 +124,8 @@ function upgrade_overcloud
     -e /home/stack/network-environment.yaml \
     -e $THT/environments/docker.yaml \
     -e $THT/environments/major-upgrade-composable-steps-docker.yaml \
-    -e ~/containers-default-parameters.yaml
+    -e ~/containers-default-parameters.yaml \
+    -e ~/containers-upgrade-repos.yaml 
     sleep 3
     printf "\n"
 }
