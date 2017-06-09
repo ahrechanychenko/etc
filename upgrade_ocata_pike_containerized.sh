@@ -71,10 +71,10 @@ function perform_preparing_steps
     sleep 3
     printf "\n"
     
-    cat > ~/containers-upgrade-repos.yaml <<EOEF
+    cat > ~/containers-upgrade-repos.yaml <<'EOEF'
 parameter_defaults:
   UpgradeInitCommand: |
-    set -e
+    set -ex
     pushd /etc/yum.repos.d/
     rm -rf delorean*
     REPO_PREFIX=/etc/yum.repos.d
