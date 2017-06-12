@@ -38,7 +38,13 @@ function upgrade_undercloud_node
     echo -e "\x1B[01;96m Upgrade undercloud node\n / \x1B[0m"
     echo -e "\x1B[01;96m ------------------------------------------------------------------ \x1B[0m"
     ### UPGRADE UNDERCLOUD ###
-
+    
+    #w/a https://bugs.launchpad.net/tripleo/+bug/1692899
+    controller_ip="$(nova list|grep controller|grep ctlplane|awk -F' ' '{ print $12 }'|awk -F'=' '{ print $2 }')" 
+    ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "cd /tmp/; git clone https://github.com/levor23/etc/"
+    ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "yum install -y patch"
+    ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "sudo patch /usr/libexec/os-refresh-config/configure.d/50-heat-config-docker-cmd /tmp/etc/patch_for_docker_cmd"
+    
     # master repos
     cd /home/stack/ && source stackrc
 
@@ -47,17 +53,13 @@ function upgrade_undercloud_node
     sudo sed -i 's/\[delorean\]/\[delorean-current\]/' /etc/yum.repos.d/delorean-current.repo
     sudo /bin/bash -c 'printf "\nincludepkgs=diskimage-builder,instack,instack-undercloud,os-apply-config,os-collect-config,os-net-config,os-refresh-config,python-tripleoclient,openstack-tripleo-common*,openstack-tripleo-heat-templates,openstack-tripleo-image-elements,openstack-tripleo,openstack-tripleo-puppet-elements,openstack-puppet-modules,openstack-tripleo-ui,puppet-*" >> /etc/yum.repos.d/delorean-current.repo'
     sudo curl -L -o /etc/yum.repos.d/delorean-deps.repo https://trunk.rdoproject.org/centos7/delorean-deps.repo
-
+    
     sudo systemctl stop openstack-*
     sudo systemctl stop neutron-*
     sudo systemctl stop httpd
 
     sudo yum -y update instack-undercloud openstack-puppet-modules openstack-tripleo-common python-tripleoclient
-    #w/a https://bugs.launchpad.net/tripleo/+bug/1692899
-    controller_ip="$(nova list|grep controller|grep ctlplane|awk -F' ' '{ print $12 }'|awk -F'=' '{ print $2 }')" 
-    ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "cd /tmp/; git clone https://github.com/levor23/etc/"
-    ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "yum install -y patch"
-    ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "sudo patch /usr/libexec/os-refresh-config/configure.d/50-heat-config-docker-cmd /tmp/etc/patch_for_docker_cmd"
+    
 
     openstack undercloud upgrade
     printf "\n"
