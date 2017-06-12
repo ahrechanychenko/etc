@@ -118,6 +118,8 @@ function upgrade_overcloud
     echo -e "\x1B[01;96m ------------------------------------------------------------------ \x1B[0m"
     cd /home/stack/ && source stackrc
     export THT=/usr/share/openstack-tripleo-heat-templates
+    #workaround for VLAN 10 rules
+    ./overcloud-prep-network.sh
     openstack overcloud deploy \
     --libvirt-type qemu \
     --ntp-server clock.redhat.com \
