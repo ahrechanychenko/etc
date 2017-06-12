@@ -42,7 +42,7 @@ function upgrade_undercloud_node
     #w/a https://bugs.launchpad.net/tripleo/+bug/1692899
     controller_ip="$(nova list|grep controller|grep ctlplane|awk -F' ' '{ print $12 }'|awk -F'=' '{ print $2 }')" 
     ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "cd /tmp/; git clone https://github.com/levor23/etc/"
-    ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "yum install -y patch"
+    ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "sudo yum install -y patch"
     ssh -o StrictHostKeyChecking=no heat-admin@$controller_ip "sudo patch /usr/libexec/os-refresh-config/configure.d/50-heat-config-docker-cmd /tmp/etc/patch_for_docker_cmd"
     
     # master repos
