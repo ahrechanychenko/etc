@@ -16,7 +16,7 @@ function deploy_overcloud
     -e $THT/environments/low-memory-usage.yaml \
     -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation-v6.yaml \
     -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans-v6.yaml \
-    -e /usr/share/openstack-tripleo-heat-templates/environments/network-environment.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/network-environment.yaml 
     sleep 3
     printf "\n"
 }
