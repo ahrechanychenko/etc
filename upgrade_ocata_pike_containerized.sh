@@ -14,8 +14,8 @@ function deploy_overcloud
     --compute-flavor oooq_compute \
     --templates $THT \
     -e $THT/environments/low-memory-usage.yaml \
-    -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation-v6.yaml \
-    -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans-v6.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
+    -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml \
     -e /usr/share/openstack-tripleo-heat-templates/environments/network-environment.yaml 
     sleep 3
     printf "\n"
